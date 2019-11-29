@@ -12,14 +12,14 @@ services2=(logger_servers manager)
 
 # opredeleinie peremennih
 login="arcsight"
-corre_password=""
+corre_password="<PASS>"
 curr_date=`date +"%Y%m%d"`
 status=
 arcstatus=`/etc/init.d/arcsight_services status`
 export_dir=/opt/arcsight/manager/tmp/
 exp_sql="arcsight_dump_system_tables.sql"
 exp_param="export_system_tables.param"
-backup_dir=/backup/
+backup_dir=/opt/backup/
 
 ta=${#tables[@]}
 fa=${#files[@]}
@@ -165,7 +165,8 @@ echo "step 3 - done $date"
 #step 4 backup mysql
 unset status
 status=`/etc/init.d/arcsight_services status |grep manager`
-if [ "$status" = "manager service is unavailable" ]; then /opt/arcsight/manager/bin/arcsight export_system_tables $login $corre_password arcsight 
+if [ "$status" = "manager service is unavailable" ]; 
+then su arcsight -c /opt/arcsight/manager/bin/arcsight export_system_tables $login $corre_password arcsight 
 else logger -i "CEF:0|ArcSight|Logger|1|archive:122|Backup failed|6|msg=Arcsight manager service must be stopped before export system tables cat=/Monitor/Archive/Archival/Failure"  && exit 6
 fi
 
@@ -211,7 +212,7 @@ fi
 # zapusk manager
 unset status
 status=`/etc/init.d/arcsight_services status |grep manager`
-if [ "$status" = "manager service is unavailable" ]; then /etc/init.d/arcsight_services start && sleep 30
+if [ "$status" = "manager service is unavailable" ]; then /etc/init.d/arcsight_services start all && sleep 30
 else :
 fi
 #echo "manager started" $date
